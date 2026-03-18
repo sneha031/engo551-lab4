@@ -6,11 +6,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const setStatus = (msg) => (statusEl.textContent = msg || "");
 
-  const map = L.map("map").setView([51.0447, -114.0719], 11);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  const MAPBOX_USER = "sneha31";
+  const MAPBOX_STYLE_ID = "cmmtjsrx5002e01sw6ick5njq";
+  const MAPBOX_TOKEN = "";
+
+  const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: "&copy; OpenStreetMap contributors",
-  }).addTo(map);
+  });
+
+  const trafficStyle = L.tileLayer(
+    `https://api.mapbox.com/styles/v1/${MAPBOX_USER}/${MAPBOX_STYLE_ID}/tiles/512/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`,
+    {
+      tileSize: 512,
+      zoomOffset: -1,
+      maxZoom: 22,
+      attribution:
+        '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> ' +
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }
+  );
+
+  const map = L.map("map", {
+    center: [51.0447, -114.0719],
+    zoom: 11,
+    layers: [osm]
+  });
 
   const cluster = L.markerClusterGroup().addTo(map);
 
@@ -55,6 +76,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const b = layer.getBounds();
     if (b.isValid()) map.fitBounds(b, { padding: [30, 30] });
   };
+
+  const baseMaps = {
+    "OpenStreetMap": osm,
+    "Traffic Incidents (Mapbox Style)": trafficStyle
+  };
+
+  const overlays = {
+    "Building Permits": cluster
+  };
+
+  L.control.layers(baseMaps, overlays, { collapsed: false }).addTo(map);
 
   btn.addEventListener("click", async () => {
     const start = startEl.value;

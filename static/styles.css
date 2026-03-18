@@ -160,3 +160,8 @@ body::before {
   border: 2px solid #ff10f0;
   box-shadow: 0 0 10px rgba(255, 16, 240, 0.6);
 }
+
+.leaflet-control-layers {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.12) !important;
+}
