@@ -4,20 +4,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const endEl = document.getElementById("endDate");
   const btn = document.getElementById("searchBtn");
 
-  const setStatus = (msg) => (statusEl.textContent = msg || "");
-
-  const MAPBOX_TOKEN = "";
-  const MAPBOX_STYLE = "";
+  const setStatus = (msg) => {
+    statusEl.textContent = msg || "";
+  };
 
   const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: "&copy; OpenStreetMap contributors"
-  });
-
-  const trafficStyle = L.mapboxGL({
-    accessToken: MAPBOX_TOKEN,
-    style: MAPBOX_STYLE,
-    interactive: false
   });
 
   const map = L.map("map", {
@@ -26,7 +19,18 @@ document.addEventListener("DOMContentLoaded", () => {
     layers: [osm]
   });
 
-  const cluster = L.markerClusterGroup().addTo(map);
+  let trafficStyle = null;
+
+  if (MAPBOX_TOKEN && MAPBOX_STYLE) {
+    trafficStyle = L.mapboxGL({
+      accessToken: MAPBOX_TOKEN,
+      style: MAPBOX_STYLE,
+      interactive: false
+    });
+  }
+
+  const cluster = L.markerClusterGroup();
+  cluster.addTo(map);
 
   const icon = L.divIcon({
     className: "permit-marker",
@@ -38,13 +42,14 @@ document.addEventListener("DOMContentLoaded", () => {
   let oms = null;
 
   const resetOMS = () => {
-    oms =
-      typeof OverlappingMarkerSpiderfier === "function"
-        ? new OverlappingMarkerSpiderfier(map, {
-            keepSpiderfied: true,
-            nearbyDistance: 20
-          })
-        : null;
+    if (typeof OverlappingMarkerSpiderfier === "function") {
+      oms = new OverlappingMarkerSpiderfier(map, {
+        keepSpiderfied: true,
+        nearbyDistance: 20
+      });
+    } else {
+      oms = null;
+    }
   };
 
   const popupHtml = (p) => `
@@ -63,24 +68,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const layer = L.geoJSON(geojson, {
       pointToLayer: (_, latlng) => L.marker(latlng, { icon }),
-      onEachFeature: (f, m) => {
-        m.bindPopup(popupHtml(f.properties || {}));
-        if (oms) oms.addMarker(m);
+      onEachFeature: (feature, marker) => {
+        marker.bindPopup(popupHtml(feature.properties || {}));
+        if (oms) {
+          oms.addMarker(marker);
+        }
       }
     });
 
     cluster.addLayer(layer);
 
-    const b = layer.getBounds();
-    if (b.isValid()) {
-      map.fitBounds(b, { padding: [30, 30] });
+    const bounds = layer.getBounds();
+    if (bounds.isValid()) {
+      map.fitBounds(bounds, { padding: [30, 30] });
     }
   };
 
   const baseMaps = {
-    "OpenStreetMap": osm,
-    "Traffic Incidents (Mapbox Style)": trafficStyle
+    "OpenStreetMap": osm
   };
+
+  if (trafficStyle) {
+    baseMaps["Traffic Incidents (Mapbox Style)"] = trafficStyle;
+  }
 
   const overlays = {
     "Building Permits": cluster
@@ -88,12 +98,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   L.control.layers(baseMaps, overlays, { collapsed: false }).addTo(map);
 
+  if (!trafficStyle) {
+    setStatus("Ready. Add MAPBOX_TOKEN and MAPBOX_STYLE env vars to enable the traffic incidents layer.");
+  } else {
+    setStatus("Ready.");
+  }
+
   btn.addEventListener("click", async () => {
     const start = startEl.value;
     const end = endEl.value;
 
-    if (!start || !end) return setStatus("Pick both dates.");
-    if (start > end) return setStatus("Start must be before end.");
+    if (!start || !end) {
+      setStatus("Pick both dates.");
+      return;
+    }
+
+    if (start > end) {
+      setStatus("Start must be before end.");
+      return;
+    }
 
     setStatus("Searching...");
 
@@ -101,9 +124,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch(`/api/permits?start=${start}&end=${end}`, {
         cache: "no-store"
       });
+
       const data = await res.json();
 
-      if (!res.ok) return setStatus(data.error || "Search failed.");
+      if (!res.ok) {
+        setStatus(data.error || "Search failed.");
+        return;
+      }
 
       setStatus(`Found ${data.features?.length || 0} permits.`);
       plot(data);
@@ -111,10 +138,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!map.hasLayer(cluster)) {
         map.addLayer(cluster);
       }
-    } catch {
+    } catch (error) {
       setStatus("Request failed.");
+      console.error(error);
     }
   });
-
-  setStatus("Ready.");
 });

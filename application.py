@@ -6,9 +6,15 @@ app = Flask(__name__)
 
 URL = "https://data.calgary.ca/api/v3/views/c2es-76ed/query.geojson"
 
+
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template(
+        "index.html",
+        mapbox_token=os.getenv("MAPBOX_TOKEN", ""),
+        mapbox_style=os.getenv("MAPBOX_STYLE", "")
+    )
+
 
 @app.route("/api/permits")
 def permits():
@@ -17,11 +23,13 @@ def permits():
 
     if not start or not end:
         return jsonify({"error": "start and end dates are required"}), 400
+
     if start > end:
         return jsonify({"error": "start must be before end"}), 400
 
     key_id = os.getenv("SODA_KEY_ID")
     key_secret = os.getenv("SODA_KEY_SECRET")
+
     if not key_id or not key_secret:
         return jsonify({"error": "Missing SODA_KEY_ID / SODA_KEY_SECRET env vars"}), 500
 
@@ -34,10 +42,16 @@ def permits():
 
     payload = {
         "query": q,
-        "page": {"pageNumber": 1, "pageSize": 2000}
+        "page": {
+            "pageNumber": 1,
+            "pageSize": 2000
+        }
     }
 
-    r = requests.post(URL, json=payload, auth=(key_id, key_secret), timeout=30)
+    try:
+        r = requests.post(URL, json=payload, auth=(key_id, key_secret), timeout=30)
+    except requests.RequestException:
+        return jsonify({"error": "Request to Open Calgary failed"}), 502
 
     if r.status_code != 200:
         return jsonify({
@@ -47,6 +61,7 @@ def permits():
         }), 502
 
     return jsonify(r.json())
+
 
 if __name__ == "__main__":
     app.run(debug=True)

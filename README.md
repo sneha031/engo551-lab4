@@ -32,7 +32,6 @@ This project is a continuation of Lab 3 and expands the original web mapping app
 ## Instructions for Running the Site
 Follow the instructions below to run the application
 
-
 ### 1. Install dependencies
 Run this in the powershell:
 
@@ -47,13 +46,21 @@ In PowerShell, run:
 $env:SODA_KEY_ID="YOUR_KEY_ID"
 $env:SODA_KEY_SECRET="YOUR_KEY_SECRET"
 
-### 3. Run the Flask application
+## 3. Set the Mapbox Acess token 
+Keep these private and only set them in your terminal (get these from your Mapbox Style)
+
+In Powershell, run: 
+$env:MAPBOX_TOKEN="YOUR_REAL_TOKEN"
+$env:MAPBOX_STYLE="mapbox://styles/sneha31/cmmtjsrx5002e01sw6ick5njq"
+
+
+### 4. Run the Flask application
 Run this in the terminal:
 
 python application.py
 
 
-### 4. Open the site in your browser
+### 5. Open the site in your browser
 Go to:
 
 
