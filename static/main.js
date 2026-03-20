@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const setStatus = (msg) => (statusEl.textContent = msg || "");
 
   const MAPBOX_TOKEN = "";
-  const MAPBOX_STYLE = "mapbox://styles/sneha31/cmmtjsrx5002e01sw6ick5njq";
+  const MAPBOX_STYLE = "";
 
   const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
