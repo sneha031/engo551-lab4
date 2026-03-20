@@ -6,26 +6,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const setStatus = (msg) => (statusEl.textContent = msg || "");
 
-  const MAPBOX_USER = "sneha31";
-  const MAPBOX_STYLE_ID = "cmmtjsrx5002e01sw6ick5njq";
   const MAPBOX_TOKEN = "";
+  const MAPBOX_STYLE = "mapbox://styles/sneha31/cmmtjsrx5002e01sw6ick5njq";
 
   const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
-    attribution: "&copy; OpenStreetMap contributors",
+    attribution: "&copy; OpenStreetMap contributors"
   });
 
-  const trafficStyle = L.tileLayer(
-    `https://api.mapbox.com/styles/v1/${MAPBOX_USER}/${MAPBOX_STYLE_ID}/tiles/512/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`,
-    {
-      tileSize: 512,
-      zoomOffset: -1,
-      maxZoom: 22,
-      attribution:
-        '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> ' +
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }
-  );
+  const trafficStyle = L.mapboxGL({
+    accessToken: MAPBOX_TOKEN,
+    style: MAPBOX_STYLE,
+    interactive: false
+  });
 
   const map = L.map("map", {
     center: [51.0447, -114.0719],
@@ -39,14 +32,19 @@ document.addEventListener("DOMContentLoaded", () => {
     className: "permit-marker",
     html: '<div class="permit-dot"></div>',
     iconSize: [12, 12],
-    iconAnchor: [6, 6],
+    iconAnchor: [6, 6]
   });
 
   let oms = null;
+
   const resetOMS = () => {
-    oms = typeof OverlappingMarkerSpiderfier === "function"
-      ? new OverlappingMarkerSpiderfier(map, { keepSpiderfied: true, nearbyDistance: 20 })
-      : null;
+    oms =
+      typeof OverlappingMarkerSpiderfier === "function"
+        ? new OverlappingMarkerSpiderfier(map, {
+            keepSpiderfied: true,
+            nearbyDistance: 20
+          })
+        : null;
   };
 
   const popupHtml = (p) => `
@@ -68,13 +66,15 @@ document.addEventListener("DOMContentLoaded", () => {
       onEachFeature: (f, m) => {
         m.bindPopup(popupHtml(f.properties || {}));
         if (oms) oms.addMarker(m);
-      },
+      }
     });
 
     cluster.addLayer(layer);
 
     const b = layer.getBounds();
-    if (b.isValid()) map.fitBounds(b, { padding: [30, 30] });
+    if (b.isValid()) {
+      map.fitBounds(b, { padding: [30, 30] });
+    }
   };
 
   const baseMaps = {
@@ -98,11 +98,19 @@ document.addEventListener("DOMContentLoaded", () => {
     setStatus("Searching...");
 
     try {
-      const res = await fetch(`/api/permits?start=${start}&end=${end}`, { cache: "no-store" });
+      const res = await fetch(`/api/permits?start=${start}&end=${end}`, {
+        cache: "no-store"
+      });
       const data = await res.json();
+
       if (!res.ok) return setStatus(data.error || "Search failed.");
+
       setStatus(`Found ${data.features?.length || 0} permits.`);
       plot(data);
+
+      if (!map.hasLayer(cluster)) {
+        map.addLayer(cluster);
+      }
     } catch {
       setStatus("Request failed.");
     }

@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
@@ -24,16 +25,13 @@ body::before {
 .map-wrap {
   position: relative;
   z-index: 1;
-
   height: calc(100vh - 32px);
   width: calc(100% - 32px);
   margin: 16px;
-
   border-radius: 16px;
   overflow: hidden;
-
-  box-shadow: 0 12px 35px rgba(0,0,0,0.15);
-  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 #map {
@@ -47,16 +45,14 @@ body::before {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: center;
-
   padding: 12px 14px;
   background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 16px;
   backdrop-filter: blur(6px);
 }
@@ -72,8 +68,8 @@ body::before {
 .topbar input[type="date"] {
   padding: 8px 10px;
   border-radius: 10px;
-  border: 1px solid rgba(0,0,0,0.15);
-  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.95);
   color: #222;
   outline: none;
 }
@@ -106,8 +102,8 @@ body::before {
   color: #444;
   padding: 7px 10px;
   border-radius: 10px;
-  background: rgba(255,255,255,0.70);
-  border: 1px solid rgba(0,0,0,0.06);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .leaflet-popup-content-wrapper {
@@ -123,8 +119,9 @@ body::before {
 .marker-cluster-small {
   background-color: rgba(255, 16, 240, 0.25) !important;
 }
+
 .marker-cluster-small div {
-  background-color: rgba(255, 16, 240, 0.60) !important;
+  background-color: rgba(255, 16, 240, 0.6) !important;
   color: #ffffff !important;
   font-weight: 800;
 }
@@ -132,6 +129,7 @@ body::before {
 .marker-cluster-medium {
   background-color: rgba(255, 16, 240, 0.28) !important;
 }
+
 .marker-cluster-medium div {
   background-color: rgba(255, 16, 240, 0.68) !important;
   color: #ffffff !important;
@@ -141,6 +139,7 @@ body::before {
 .marker-cluster-large {
   background-color: rgba(255, 16, 240, 0.32) !important;
 }
+
 .marker-cluster-large div {
   background-color: rgba(255, 16, 240, 0.78) !important;
   color: #ffffff !important;
@@ -162,6 +161,35 @@ body::before {
 }
 
 .leaflet-control-layers {
-  border-radius: 12px !important;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.12) !important;
+  background: rgba(253, 230, 238, 0.97) !important;
+  border: 1px solid rgba(214, 74, 115, 0.28) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 24px rgba(214, 74, 115, 0.45) !important;
+  padding: 10px 12px !important;
+  color: #111 !important;
+}
+
+.leaflet-control-layers-form {
+  color: #111 !important;
+}
+
+.leaflet-control-layers label {
+  color: #111 !important;
+  font-size: 15px;
+  font-weight: 500;
+  margin: 6px 0;
+}
+
+.leaflet-control-layers input {
+  margin-right: 8px;
+  accent-color: #d64a73;
+  transform: scale(1.05);
+}
+
+.leaflet-control-layers label:hover {
+  color: #8a1f3f !important;
+}
+
+.leaflet-gl-layer {
+  pointer-events: none !important;
 }
